@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickFix Auto - Premium Vehicle Service Platform</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- React & Babel CDNs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    
+    <!-- Tailwind CDN with Configuration -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            200: '#bae0fd',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Premium Styling & Transitions -->
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes scaleUp {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.15); }
+            50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.35); }
+        }
+        @keyframes slideInRight {
+            from { transform: translateX(20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-scale-up {
+            animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .animate-slide-in {
+            animation: slideInRight 0.3s ease-out forwards;
+        }
+        .glow-brand {
+            animation: pulseGlow 3s infinite;
+        }
+        
+        /* Glassmorphism panels */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .light .glass-panel {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+        
+        .glass-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .light .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover {
+            border-color: rgba(59, 130, 246, 0.4);
+            background: rgba(30, 41, 59, 0.6);
+        }
+        .light .glass-card:hover {
+            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(255, 255, 255, 0.85);
+        }
+        
+        /* Scrollbar styles */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.2);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.4);
+        }
+        
+        .interactive-scale {
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .interactive-scale:hover {
+            transform: translateY(-2px);
+        }
+        .interactive-scale:active {
+            transform: scale(0.97);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Icon Components (Simplified SVG)
+        const Icon = ({ d, size = 24, ...props }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+                <path d={d} />
+            </svg>
+        );
+
+        const HomeIcon = (props) => <Icon d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10" {...props} />;
+        const ActivityIcon = (props) => <Icon d="M22 12h-4l-3 9L9 3l-3 9H2" {...props} />;
+        const UserIcon = (props) => <Icon d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8" {...props} />;
+        const SearchIcon = (props) => <Icon d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16z M21 21l-4.35-4.35" {...props} />;
+        const WrenchIcon = (props) => <Icon d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" {...props} />;
+        const AlertIcon = (props) => <Icon d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z M12 9v4 M12 17h.01" {...props} />;
+        const CarIcon = (props) => <Icon d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2 M7 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4z M17 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" {...props} />;
+        const BatteryIcon = (props) => <Icon d="M6 7h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z M22 11v2" {...props} />;
+        const KeyIcon = (props) => <Icon d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" {...props} />;
+        const DropletIcon = (props) => <Icon d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" {...props} />;
+        const WindIcon = (props) => <Icon d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2" {...props} />;
+        const ZapIcon = (props) => <Icon d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" {...props} />;
+        const SettingsIcon = (props) => <Icon d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" {...props} />;
+        const HelpIcon = (props) => <Icon d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3 M12 17h.01" {...props} />;
+        const MailIcon = (props) => <Icon d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z M22 6l-10 7L2 6" {...props} />;
+        const LogOutIcon = (props) => <Icon d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9" {...props} />;
+        const MapPinIcon = (props) => <Icon d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" {...props} />;
+        const ClockIcon = (props) => <Icon d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z M12 6v6l4 2" {...props} />;
+        const FilterIcon = (props) => <Icon d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" {...props} />;
+        const ChevronRightIcon = (props) => <Icon d="M9 18l6-6-6-6" {...props} />;
+        const CalendarIcon = (props) => <Icon d="M8 2v4 M16 2v4 M3 10h18 M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" {...props} />;
+        const XIcon = (props) => <Icon d="M18 6L6 18 M6 6l12 12" {...props} />;
+        const CheckIcon = (props) => <Icon d="M20 6L9 17l-5-5" {...props} />;
+        const TrashIcon = (props) => <Icon d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" {...props} />;
+        const EditIcon = (props) => <Icon d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7M18.5 2.5a2.121 2.121 0 113 3L12 15l-4 1 1-4 9.5-9.5z" {...props} />;
+        const LockIcon = (props) => <Icon d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" {...props} />;
+
+        // Simulated Interactive Map Component
+        const SimulatedMap = ({ centers, selectedCenter, onSelectCenter }) => {
+            const locations = {
+                user: { x: 150, y: 120, label: "You" },
+                1: { x: 75, y: 60, name: "AutoCare Service Center" },
+                2: { x: 230, y: 55, name: "Quick Fix Garage" },
+                3: { x: 195, y: 165, name: "Elite Auto Services" }
+            };
+
+            return (
+                <div className="relative w-full h-44 bg-slate-100 dark:bg-slate-950 rounded-2xl overflow-hidden mb-5 border border-slate-200 dark:border-slate-800 shadow-inner">
+                    <svg className="w-full h-full" viewBox="0 0 300 200">
+                        {/* Simulated Roads/Grid lines */}
+                        <path d="M 0,100 L 300,100 M 150,0 L 150,200 M 50,50 L 250,150 M 50,150 L 250,50" 
+                              stroke="rgba(156, 163, 175, 0.25)" strokeWidth="4" strokeDasharray="8,6" fill="none" />
+                        
+                        {/* Dotted animation to selected center */}
+                        {selectedCenter && (
+                            <path 
+                                d={`M 150,120 L ${locations[selectedCenter.id].x},${locations[selectedCenter.id].y}`}
+                                stroke="#3b82f6" 
+                                strokeWidth="3" 
+                                strokeLinecap="round"
+                                strokeDasharray="5,5" 
+                                className="animate-[dash_1.5s_linear_infinite]"
+                                style={{
+                                    animation: 'dash 1.5s linear infinite'
+                                }}
+                                fill="none" 
+                            />
+                        )}
+                        <style>{`
+                            @keyframes dash {
+                                to {
+                                    stroke-dashoffset: -20;
+                                }
+                            }
+                        `}</style>
+
+                        {/* User Pin */}
+                        <circle cx="150" cy="120" r="16" fill="rgba(59, 130, 246, 0.15)" />
+                        <circle cx="150" cy="120" r="8" fill="rgba(59, 130, 246, 0.3)" />
+                        <circle cx="150" cy="120" r="4" fill="#3b82f6" />
+                        <text x="150" y="145" textAnchor="middle" className="text-[10px] font-bold fill-blue-500 dark:fill-blue-400">
+                            Your Location
+                        </text>
+                        
+                        {/* Center Pins */}
+                        {centers.map(center => {
+                            const loc = locations[center.id];
+                            const isSelected = selectedCenter?.id === center.id;
+                            return (
+                                <g key={center.id} className="cursor-pointer group" onClick={() => onSelectCenter(center)}>
+                                    {isSelected && (
+                                        <circle cx={loc.x} cy={loc.y} r="14" fill="rgba(34, 197, 94, 0.2)" className="animate-ping" />
+                                    )}
+                                    <circle cx={loc.x} cy={loc.y} r="8" fill={isSelected ? "#22c55e" : "#ef4444"} className="transition-all duration-200 group-hover:scale-125" />
+                                    <circle cx={loc.x} cy={loc.y} r="3" fill="#ffffff" />
+                                    <text x={loc.x} y={loc.y - 12} textAnchor="middle" 
+                                          className={`text-[9px] font-bold transition-colors ${isSelected ? "fill-green-500 font-extrabold" : "fill-slate-600 dark:fill-slate-400"}`}>
+                                        {center.name.split(' ')[0]}
+                                    </text>
+                                </g>
+                            );
+                        })}
+                    </svg>
+                    <div className="absolute bottom-2 left-2 bg-white/80 dark:bg-gray-900/80 px-2 py-0.5 rounded text-[9px] font-semibold text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 backdrop-blur-sm">
+                        Live Tracking Map
+                    </div>
+                </div>
+            );
+        };
+
+        // Premium Authentication / Login Component
+        const LoginView = ({ onLogin }) => {
+            const [email, setEmail] = useState('');
+            const [password, setPassword] = useState('');
+            const [showPassword, setShowPassword] = useState(false);
+            const [error, setError] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                setError('');
+                if (!email) {
+                    setError('Please enter your email.');
+                    return;
+                }
+                if (!/\S+@\S+\.\S+/.test(email)) {
+                    setError('Please enter a valid email address.');
+                    return;
+                }
+                if (!password || password.length < 6) {
+                    setError('Password must be at least 6 characters long.');
+                    return;
+                }
+
+                setIsLoading(true);
+                setTimeout(() => {
+                    setIsLoading(false);
+                    onLogin();
+                }, 1000);
+            };
+
+            const handleQuickLogin = () => {
+                setIsLoading(true);
+                setTimeout(() => {
+                    setIsLoading(false);
+                    onLogin();
+                }, 600);
+            };
+
+            return (
+                <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex flex-col justify-center items-center p-4">
+                    <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl p-8 border border-slate-100 dark:border-gray-800 shadow-2xl animate-scale-up">
+                        <div className="text-center mb-8">
+                            <div className="w-16 h-16 bg-blue-600/10 dark:bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-600 dark:text-blue-400 mx-auto mb-4 glow-brand">
+                                <WrenchIcon size={36} />
+                            </div>
+                            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">QuickFix Auto</h1>
+                            <p className="text-slate-500 dark:text-gray-400 text-sm mt-2">Premium Roadside Assistance & Vehicle Service</p>
+                        </div>
+
+                        {error && (
+                            <div className="bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 p-4 rounded-xl text-sm mb-6 border border-red-100 dark:border-red-900/50 flex items-center gap-2">
+                                <AlertIcon size={18} />
+                                <span>{error}</span>
+                            </div>
+                        )}
+
+                        <form onSubmit={handleSubmit} className="space-y-5">
+                            <div>
+                                <label className="block text-slate-700 dark:text-gray-300 text-sm font-semibold mb-1.5">Email Address</label>
+                                <input
+                                    type="email"
+                                    placeholder="yourname@email.com"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full bg-slate-50 dark:bg-gray-800/50 text-slate-800 dark:text-white border border-slate-200 dark:border-gray-700 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-800 transition"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-slate-700 dark:text-gray-300 text-sm font-semibold mb-1.5">Password</label>
+                                <div className="relative">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="w-full bg-slate-50 dark:bg-gray-800/50 text-slate-800 dark:text-white border border-slate-200 dark:border-gray-700 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-800 transition pr-12"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-gray-300 transition"
+                                    >
+                                        {showPassword ? "Hide" : "Show"}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isLoading}
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-bold transition shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-50"
+                            >
+                                {isLoading ? (
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                ) : "Sign In"}
+                            </button>
+                        </form>
+
+                        <div className="relative my-6 text-center">
+                            <hr className="border-slate-200 dark:border-gray-800" />
+                            <span className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 px-4 text-xs text-slate-400 font-semibold uppercase">Or</span>
+                        </div>
+
+                        <button
+                            onClick={handleQuickLogin}
+                            disabled={isLoading}
+                            className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-slate-700 dark:text-white py-4 rounded-xl font-bold transition flex items-center justify-center gap-2 active:scale-[0.98]"
+                        >
+                            <UserIcon size={18} className="text-blue-500" />
+                            Quick Login (Rajesh Kumar)
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const VehicleServiceApp = () => {
+            const [currentPage, setCurrentPage] = useState('home');
+            const [showAllServices, setShowAllServices] = useState(false);
+            const [selectedService, setSelectedService] = useState(null);
+            const [searchQuery, setSearchQuery] = useState('');
+            const [emergencyMode, setEmergencyMode] = useState(false);
+            
+            // Loaded states from localStorage
+            const [isLoggedIn, setIsLoggedIn] = useState(() => {
+                return localStorage.getItem('quickfix_is_logged_in') === 'true';
+            });
+
+            const [user, setUser] = useState(() => {
+                const saved = localStorage.getItem('quickfix_user');
+                return saved ? JSON.parse(saved) : {
+                    name: 'Rajesh Kumar',
+                    phone: '+91 98765 43210',
+                    email: 'rajesh.kumar@email.com',
+                    license: 'AP-1234567890',
+                    address: 'Flat 301, Lakshmi Towers, Vepagunta, Visakhapatnam, AP 530047',
+                    photo: 'RK',
+                    hideEmail: false,
+                    hideLicense: false,
+                    theme: 'dark'
+                };
+            });
+
+            const [bookings, setBookings] = useState(() => {
+                const saved = localStorage.getItem('quickfix_bookings');
+                return saved ? JSON.parse(saved) : [];
+            });
+
+            const [theme, setTheme] = useState(() => {
+                return localStorage.getItem('quickfix_theme') || 'dark';
+            });
+
+            const [showSettings, setShowSettings] = useState(null);
+            const [bookingStep, setBookingStep] = useState(0);
+            const [selectedVehicle, setSelectedVehicle] = useState(null);
+            const [selectedCenter, setSelectedCenter] = useState(null);
+
+            // Profile Edit form state
+            const [isEditingProfile, setIsEditingProfile] = useState(false);
+            const [profileForm, setProfileForm] = useState({ ...user });
+
+            // Sync with local storage
+            useEffect(() => {
+                localStorage.setItem('quickfix_is_logged_in', isLoggedIn);
+            }, [isLoggedIn]);
+
+            useEffect(() => {
+                localStorage.setItem('quickfix_user', JSON.stringify(user));
+            }, [user]);
+
+            useEffect(() => {
+                localStorage.setItem('quickfix_bookings', JSON.stringify(bookings));
+            }, [bookings]);
+
+            useEffect(() => {
+                localStorage.setItem('quickfix_theme', theme);
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }, [theme]);
+
+            const handleLogout = () => {
+                setIsLoggedIn(false);
+                setCurrentPage('home');
+            };
+
+            const handleLogin = () => {
+                setIsLoggedIn(true);
+            };
+
+            const services = [
+                { id: 1, name: 'Servicing & Maintenance', icon: <WrenchIcon size={32} />, price: '₹1,500 - ₹5,000', time: '2-4 hours', emergency: false },
+                { id: 2, name: 'Vehicle Towing', icon: <CarIcon size={32} />, price: '₹800 - ₹2,500', time: '30-60 mins', emergency: true },
+                { id: 3, name: 'Refueling Service', icon: <DropletIcon size={32} />, price: '₹100 + Fuel', time: '15 mins', emergency: true },
+                { id: 4, name: 'Duplicate Keys', icon: <KeyIcon size={32} />, price: '₹500 - ₹2,000', time: '1-2 hours', emergency: false },
+                { id: 5, name: 'Minor Issue Assistance', icon: <WrenchIcon size={32} />, price: '₹300 - ₹1,000', time: '30 mins', emergency: true },
+                { id: 6, name: 'Battery Replacement', icon: <BatteryIcon size={32} />, price: '₹2,500 - ₹8,000', time: '30 mins', emergency: true },
+                { id: 7, name: 'Jump Start', icon: <ZapIcon size={32} />, price: '₹200 - ₹500', time: '15 mins', emergency: true },
+                { id: 8, name: 'Wire/Electrical Fixing', icon: <ZapIcon size={32} />, price: '₹500 - ₹2,000', time: '1 hour', emergency: true },
+                { id: 9, name: 'Tire Change & Puncture', icon: <CarIcon size={32} />, price: '₹200 - ₹1,500', time: '30 mins', emergency: true },
+                { id: 10, name: 'Engine Overheating', icon: <WindIcon size={32} />, price: '₹1,000 - ₹5,000', time: '2-3 hours', emergency: true },
+                { id: 11, name: 'Brake System', icon: <AlertIcon size={32} />, price: '₹1,500 - ₹6,000', time: '2-4 hours', emergency: true },
+                { id: 12, name: 'Transmission Problems', icon: <SettingsIcon size={32} />, price: '₹3,000 - ₹15,000', time: '4-8 hours', emergency: false },
+                { id: 13, name: 'Vehicle Cleaning', icon: <WindIcon size={32} />, price: '₹300 - ₹1,000', time: '1 hour', emergency: false },
+                { id: 14, name: 'Oil & Lubricant', icon: <DropletIcon size={32} />, price: '₹800 - ₹2,500', time: '30 mins', emergency: false },
+                { id: 15, name: 'Engine Oil Change', icon: <DropletIcon size={32} />, price: '₹1,200 - ₹4,000', time: '45 mins', emergency: false },
+                { id: 16, name: 'Safety Check', icon: <AlertIcon size={32} />, price: '₹500 - ₹1,500', time: '1 hour', emergency: false }
+            ];
+
+            const serviceCenters = [
+                { id: 1, name: 'AutoCare Service Center', location: 'Vepagunta, 2.3 km', rating: 4.5, distance: 2.3 },
+                { id: 2, name: 'Quick Fix Garage', location: 'Gajuwaka, 4.7 km', rating: 4.2, distance: 4.7 },
+                { id: 3, name: 'Elite Auto Services', location: 'Madhurawada, 5.1 km', rating: 4.8, distance: 5.1 }
+            ];
+
+            const vehicles = [
+                { id: 1, type: 'Car', model: 'Maruti Swift', number: 'AP 39 AB 1234' },
+                { id: 2, type: 'Bike', model: 'Honda Activa', number: 'AP 39 CD 5678' }
+            ];
+
+            const confirmBooking = () => {
+                const newBooking = {
+                    id: Date.now(),
+                    service: selectedService,
+                    center: selectedCenter,
+                    vehicle: selectedVehicle,
+                    date: new Date().toLocaleDateString('en-IN'),
+                    time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+                    status: 'Confirmed',
+                    mechanic: 'Suresh Babu',
+                    mechanicPhone: '+91 98765 00000'
+                };
+                setBookings([newBooking, ...bookings]);
+                setSelectedService(null);
+                setBookingStep(0);
+                setSelectedVehicle(null);
+                setSelectedCenter(null);
+                setEmergencyMode(false);
+                setCurrentPage('activity');
+            };
+
+            const cancelBooking = (id) => {
+                if (confirm("Are you sure you want to cancel this service booking?")) {
+                    const updated = bookings.map(b => 
+                        b.id === id ? { ...b, status: 'Cancelled' } : b
+                    );
+                    setBookings(updated);
+                }
+            };
+
+            // Filter services by searchQuery and emergencyMode
+            const getFilteredServices = () => {
+                let list = services;
+                if (emergencyMode) {
+                    list = list.filter(s => s.emergency);
+                }
+                if (searchQuery.trim() !== '') {
+                    const q = searchQuery.toLowerCase();
+                    list = list.filter(s => s.name.toLowerCase().includes(q));
+                }
+                return list;
+            };
+
+            const filteredList = getFilteredServices();
+            const showServicesGrid = (showAllServices || searchQuery.trim() !== '' || emergencyMode) 
+                ? filteredList 
+                : filteredList.slice(0, 6);
+
+            const HomePage = () => (
+                <div className="space-y-6 animate-fade-in">
+                    {/* Mode Buttons */}
+                    <div className="flex gap-4">
+                        <button 
+                            onClick={() => {
+                                setEmergencyMode(false);
+                                setShowAllServices(true);
+                                const el = document.getElementById('services-section');
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white py-4 rounded-2xl font-bold shadow-lg shadow-blue-500/10 transition-all duration-300 interactive-scale"
+                        >
+                            <span className="inline-flex items-center gap-2">
+                                <WrenchIcon size={20} />
+                                Regular Servicing
+                            </span>
+                        </button>
+                        <button 
+                            onClick={() => {
+                                setEmergencyMode(true);
+                                const el = document.getElementById('services-section');
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className={`flex-1 ${emergencyMode ? 'bg-red-700 shadow-inner' : 'bg-red-600 hover:bg-red-700'} text-white py-4 rounded-2xl font-bold shadow-lg shadow-red-500/15 transition-all duration-300 interactive-scale`}
+                        >
+                            <span className="inline-flex items-center gap-2">
+                                <AlertIcon size={20} className={emergencyMode ? "animate-pulse text-yellow-300" : ""} />
+                                Emergency Service
+                            </span>
+                        </button>
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="relative">
+                        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500">
+                            <SearchIcon size={20} />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search for service (e.g., towing, puncture, oil)..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full bg-white dark:bg-gray-800 text-slate-800 dark:text-white border border-slate-200 dark:border-gray-700/60 pl-12 pr-4 py-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white shadow-sm dark:shadow-none transition"
+                        />
+                        {searchQuery && (
+                            <button 
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white"
+                            >
+                                <XIcon size={18} />
+                            </button>
+                        )}
+                    </div>
+
+                    {/* Emergency Mode Alert Banner */}
+                    {emergencyMode && (
+                        <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/60 rounded-2xl p-5 flex items-start gap-4 animate-scale-up">
+                            <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-xl text-red-600 dark:text-red-400">
+                                <AlertIcon size={24} className="animate-pulse" />
+                            </div>
+                            <div className="flex-1">
+                                <h3 className="text-red-800 dark:text-red-400 font-bold">Emergency Mode Active</h3>
+                                <p className="text-red-700 dark:text-red-300 text-sm mt-0.5">Showing immediate roadside recovery services. A mechanic will arrive in under 30 minutes.</p>
+                                <button 
+                                    onClick={() => setEmergencyMode(false)}
+                                    className="text-xs font-semibold text-red-600 dark:text-red-400 underline mt-2 hover:text-red-700 block"
+                                >
+                                    Disable Emergency Filter
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Services section */}
+                    <div id="services-section" className="scroll-mt-24">
+                        <div className="flex justify-between items-center mb-4">
+                            <div>
+                                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                                    {emergencyMode ? "Emergency Roadside Assistance" : "Available Services"}
+                                </h2>
+                                {searchQuery && (
+                                    <p className="text-xs text-slate-500 dark:text-gray-400 mt-0.5">Found {filteredList.length} matches</p>
+                                )}
+                            </div>
+                            {!showAllServices && !searchQuery && !emergencyMode && (
+                                <button
+                                    onClick={() => setShowAllServices(true)}
+                                    className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 text-sm font-bold flex items-center gap-1"
+                                >
+                                    See All ({services.length})
+                                </button>
+                            )}
+                            {showAllServices && !searchQuery && !emergencyMode && (
+                                <button
+                                    onClick={() => setShowAllServices(false)}
+                                    className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 text-sm font-bold flex items-center gap-1"
+                                >
+                                    Collapse
+                                </button>
+                            )}
+                        </div>
+
+                        {showServicesGrid.length === 0 ? (
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 rounded-2xl p-10 text-center shadow-sm">
+                                <SearchIcon size={40} className="mx-auto text-slate-300 dark:text-gray-600 mb-3" />
+                                <p className="text-slate-500 dark:text-gray-400 font-medium">No services match "{searchQuery}"</p>
+                                <button 
+                                    onClick={() => setSearchQuery('')}
+                                    className="text-sm text-blue-600 dark:text-blue-400 font-semibold underline mt-2 inline-block hover:text-blue-700"
+                                >
+                                    Clear search query
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {showServicesGrid.map((service) => (
+                                    <button
+                                        key={service.id}
+                                        onClick={() => setSelectedService(service)}
+                                        className={`glass-card p-5 rounded-2xl text-left border relative overflow-hidden group ${
+                                            service.emergency && emergencyMode ? 'border-red-500/30 shadow-md shadow-red-500/5' : ''
+                                        }`}
+                                    >
+                                        <div className={`mb-3 transition-transform duration-300 group-hover:scale-110 ${service.emergency ? 'text-red-500 dark:text-red-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                                            {service.icon}
+                                        </div>
+                                        <h3 className="text-slate-800 dark:text-white font-bold text-sm leading-snug tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{service.name}</h3>
+                                        <p className="text-slate-500 dark:text-gray-400 text-xs mt-2.5 font-medium">{service.price}</p>
+                                        <p className="text-slate-400 dark:text-gray-500 text-[10px] mt-0.5">{service.time}</p>
+                                        {service.emergency && (
+                                            <span className="absolute top-2 right-2 bg-red-100 dark:bg-red-950/50 text-red-600 dark:text-red-400 text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider scale-90">SOS</span>
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Schedule Card */}
+                    <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                        <div className="absolute right-0 bottom-0 opacity-10 transform translate-x-6 translate-y-6">
+                            <WrenchIcon size={120} />
+                        </div>
+                        <h2 className="text-xl font-bold mb-1.5">Schedule in Advance</h2>
+                        <p className="text-slate-400 text-sm mb-5 leading-relaxed">Plan routine inspections, fluid checks, and general washing ahead of time.</p>
+                        <button
+                            onClick={() => {
+                                setEmergencyMode(false);
+                                setShowAllServices(true);
+                                const el = document.getElementById('services-section');
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                            }}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold transition shadow-lg shadow-blue-500/10 flex items-center justify-center gap-2 active:scale-95"
+                        >
+                            <CalendarIcon size={18} />
+                            Schedule Now
+                        </button>
+                    </div>
+                </div>
+            );
+
+            const ActivityPage = () => (
+                <div className="space-y-4 animate-fade-in">
+                    <div className="flex justify-between items-center mb-4">
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Activity Log</h1>
+                        <span className="text-xs bg-slate-100 dark:bg-gray-800 text-slate-500 dark:text-gray-400 px-3 py-1.5 rounded-full font-semibold">
+                            {bookings.length} Booking{bookings.length !== 1 ? 's' : ''}
+                        </span>
+                    </div>
+
+                    {bookings.length === 0 ? (
+                        <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 rounded-3xl p-16 text-center shadow-sm">
+                            <div className="w-16 h-16 bg-slate-100 dark:bg-gray-800 text-slate-400 dark:text-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <ActivityIcon size={32} />
+                            </div>
+                            <p className="text-slate-500 dark:text-gray-400 font-semibold text-lg">No active bookings</p>
+                            <p className="text-slate-400 dark:text-gray-500 text-sm mt-1 mb-6">Choose a service on the Home tab to place a request.</p>
+                            <button
+                                onClick={() => setCurrentPage('home')}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-md active:scale-95"
+                            >
+                                Book a Service
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {bookings.map((booking) => (
+                                <div key={booking.id} className="bg-white dark:bg-gray-800 border border-slate-150 dark:border-gray-800 rounded-2xl p-6 shadow-sm relative overflow-hidden group">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h3 className="text-slate-900 dark:text-white font-bold text-lg leading-snug">{booking.service.name}</h3>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <span className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                                                    booking.status === 'Cancelled' 
+                                                        ? 'bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30' 
+                                                        : 'bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-900/30'
+                                                }`}>
+                                                    {booking.status}
+                                                </span>
+                                                <span className="text-[11px] text-slate-400 font-semibold">{booking.time} • {booking.date}</span>
+                                            </div>
+                                        </div>
+                                        {booking.status === 'Confirmed' && (
+                                            <button
+                                                onClick={() => cancelBooking(booking.id)}
+                                                className="text-red-500 dark:text-red-400 hover:text-red-600 p-2 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition"
+                                                title="Cancel Service"
+                                            >
+                                                <TrashIcon size={18} />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-2 gap-x-4 border-t border-b border-slate-100 dark:border-gray-700/50 py-3.5 mb-4 text-sm">
+                                        <div className="flex items-center text-slate-600 dark:text-gray-300 gap-2.5">
+                                            <MapPinIcon size={16} className="text-blue-500 shrink-0" />
+                                            <span className="font-medium truncate">{booking.center.name} <span className="text-slate-400 text-xs">({booking.center.location})</span></span>
+                                        </div>
+                                        <div className="flex items-center text-slate-600 dark:text-gray-300 gap-2.5">
+                                            <CarIcon size={16} className="text-blue-500 shrink-0" />
+                                            <span className="font-medium truncate">{booking.vehicle.model} <span className="text-slate-400 text-xs">({booking.vehicle.number})</span></span>
+                                        </div>
+                                        <div className="flex items-center text-slate-600 dark:text-gray-300 gap-2.5">
+                                            <UserIcon size={16} className="text-blue-500 shrink-0" />
+                                            <span className="font-medium truncate">{booking.mechanic} <span className="text-slate-400 text-xs">(Mechanic Assigned)</span></span>
+                                        </div>
+                                        <div className="flex items-center text-slate-600 dark:text-gray-300 gap-2.5">
+                                            <MailIcon size={16} className="text-blue-500 shrink-0" />
+                                            <span className="font-medium">{booking.mechanicPhone}</span>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={() => {
+                                            setSelectedService(booking.service);
+                                            setBookingStep(0);
+                                        }}
+                                        className="w-full bg-slate-100 hover:bg-slate-200 dark:bg-gray-700 dark:hover:bg-gray-650 text-slate-800 dark:text-white py-2.5 rounded-xl text-sm font-bold transition flex items-center justify-center gap-1.5 active:scale-[0.98]"
+                                    >
+                                        Book Again
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+
+            const AccountPage = () => {
+                const triggerSaveProfile = (e) => {
+                    e.preventDefault();
+                    if (!profileForm.name.trim() || !profileForm.phone.trim()) {
+                        alert("Name and Phone fields are required.");
+                        return;
+                    }
+                    setUser({
+                        ...user,
+                        name: profileForm.name,
+                        phone: profileForm.phone,
+                        email: profileForm.email,
+                        license: profileForm.license
+                    });
+                    setIsEditingProfile(false);
+                };
+
+                return (
+                    <div className="space-y-6 animate-fade-in">
+                        {/* Header Panel */}
+                        <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 rounded-3xl p-6 flex items-center gap-5 shadow-sm">
+                            <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-xl font-black shadow-md shadow-blue-500/20 shrink-0">
+                                {user.name.split(' ').map(n=>n[0]).join('')}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h2 className="text-slate-900 dark:text-white font-extrabold text-xl truncate">{user.name}</h2>
+                                <p className="text-slate-500 dark:text-gray-400 text-sm mt-0.5 font-medium">{user.phone}</p>
+                            </div>
+                        </div>
+
+                        {/* Quick Actions grid */}
+                        <div className="grid grid-cols-3 gap-3">
+                            <button className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 hover:bg-slate-50 dark:hover:bg-gray-750 p-5 rounded-2xl transition text-center shadow-sm flex flex-col items-center interactive-scale">
+                                <HelpIcon size={24} className="mb-2 text-blue-500" />
+                                <span className="text-slate-800 dark:text-white text-xs font-bold">Help</span>
+                            </button>
+                            <button className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 hover:bg-slate-50 dark:hover:bg-gray-750 p-5 rounded-2xl transition text-center shadow-sm flex flex-col items-center interactive-scale">
+                                <MailIcon size={24} className="mb-2 text-blue-500" />
+                                <span className="text-slate-800 dark:text-white text-xs font-bold">Inbox</span>
+                            </button>
+                            <button
+                                onClick={() => {
+                                    setShowSettings('main');
+                                    setIsEditingProfile(false);
+                                }}
+                                className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 hover:bg-slate-50 dark:hover:bg-gray-750 p-5 rounded-2xl transition text-center shadow-sm flex flex-col items-center interactive-scale"
+                            >
+                                <SettingsIcon size={24} className="mb-2 text-blue-500" />
+                                <span className="text-slate-800 dark:text-white text-xs font-bold">Settings</span>
+                            </button>
+                        </div>
+
+                        {/* Dynamic Settings Detail Panel */}
+                        {showSettings === 'main' && (
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 rounded-3xl p-4 space-y-1 shadow-sm animate-scale-up">
+                                <button
+                                    onClick={() => {
+                                        setShowSettings('profile');
+                                        setProfileForm({ ...user });
+                                    }}
+                                    className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-gray-700/50 rounded-xl transition text-slate-800 dark:text-white font-semibold text-sm"
+                                >
+                                    <span>Profile Manager</span>
+                                    <ChevronRightIcon size={20} className="text-slate-400" />
+                                </button>
+                                <button
+                                    onClick={() => setShowSettings('address')}
+                                    className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-gray-700/50 rounded-xl transition text-slate-800 dark:text-white font-semibold text-sm"
+                                >
+                                    <span>Registered Address</span>
+                                    <ChevronRightIcon size={20} className="text-slate-400" />
+                                </button>
+                                <button
+                                    onClick={() => setShowSettings('appearance')}
+                                    className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-gray-700/50 rounded-xl transition text-slate-800 dark:text-white font-semibold text-sm"
+                                >
+                                    <span>Appearance & Theme</span>
+                                    <ChevronRightIcon size={20} className="text-slate-400" />
+                                </button>
+                                <button
+                                    onClick={() => setShowSettings('invoice')}
+                                    className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-gray-700/50 rounded-xl transition text-slate-800 dark:text-white font-semibold text-sm"
+                                >
+                                    <span>Invoices & Billing</span>
+                                    <ChevronRightIcon size={20} className="text-slate-400" />
+                                </button>
+                                <button
+                                    onClick={() => setShowSettings('safety')}
+                                    className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-gray-700/50 rounded-xl transition text-slate-800 dark:text-white font-semibold text-sm"
+                                >
+                                    <span>Privacy & Safety Settings</span>
+                                    <ChevronRightIcon size={20} className="text-slate-400" />
+                                </button>
+                            </div>
+                        )}
+
+                        {showSettings === 'profile' && (
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 rounded-3xl p-6 shadow-sm animate-scale-up">
+                                <div className="flex justify-between items-center mb-6">
+                                    <button onClick={() => setShowSettings('main')} className="text-blue-600 dark:text-blue-400 font-bold text-sm">← Back</button>
+                                    {!isEditingProfile && (
+                                        <button 
+                                            onClick={() => setIsEditingProfile(true)}
+                                            className="text-blue-600 dark:text-blue-400 font-bold text-sm flex items-center gap-1 border border-blue-500/20 px-3 py-1 rounded-xl hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                                        >
+                                            <EditIcon size={14} />
+                                            Edit
+                                        </button>
+                                    )}
+                                </div>
+                                
+                                <h3 className="text-slate-900 dark:text-white font-extrabold text-xl mb-4">Profile Info</h3>
+                                
+                                {isEditingProfile ? (
+                                    <form onSubmit={triggerSaveProfile} className="space-y-4">
+                                        <div>
+                                            <label className="block text-slate-600 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Full Name</label>
+                                            <input 
+                                                type="text" 
+                                                value={profileForm.name} 
+                                                onChange={e=>setProfileForm({...profileForm, name: e.target.value})}
+                                                className="w-full bg-slate-50 dark:bg-gray-750 text-slate-800 dark:text-white border border-slate-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-slate-600 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Phone Number</label>
+                                            <input 
+                                                type="text" 
+                                                value={profileForm.phone} 
+                                                onChange={e=>setProfileForm({...profileForm, phone: e.target.value})}
+                                                className="w-full bg-slate-50 dark:bg-gray-750 text-slate-800 dark:text-white border border-slate-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-slate-600 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Email Address</label>
+                                            <input 
+                                                type="email" 
+                                                value={profileForm.email} 
+                                                onChange={e=>setProfileForm({...profileForm, email: e.target.value})}
+                                                className="w-full bg-slate-50 dark:bg-gray-750 text-slate-800 dark:text-white border border-slate-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-slate-600 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mb-1">Driving License No.</label>
+                                            <input 
+                                                type="text" 
+                                                value={profileForm.license} 
+                                                onChange={e=>setProfileForm({...profileForm, license: e.target.value})}
+                                                className="w-full bg-slate-50 dark:bg-gray-750 text-slate-800 dark:text-white border border-slate-200 dark:border-gray-700 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            />
+                                        </div>
+                                        <div className="flex gap-3 pt-2">
+                                            <button 
+                                                type="submit" 
+                                                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-sm transition"
+                                            >
+                                                Save Settings
+                                            </button>
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setIsEditingProfile(false)}
+                                                className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-gray-700 dark:hover:bg-gray-650 text-slate-700 dark:text-white font-bold py-2.5 rounded-xl text-sm transition"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                ) : (
+                                    <div className="space-y-4 text-sm divide-y divide-slate-100 dark:divide-gray-750">
+                                        <div className="pt-3 first:pt-0">
+                                            <p className="text-slate-450 dark:text-gray-400 text-xs font-semibold">Full Name</p>
+                                            <p className="text-slate-800 dark:text-white font-semibold mt-1">{user.name}</p>
+                                        </div>
+                                        <div className="pt-3">
+                                            <p className="text-slate-450 dark:text-gray-400 text-xs font-semibold">Phone Number</p>
+                                            <p className="text-slate-800 dark:text-white font-semibold mt-1">{user.phone}</p>
+                                        </div>
+                                        <div className="pt-3">
+                                            <p className="text-slate-450 dark:text-gray-400 text-xs font-semibold">Email Address</p>
+                                            <p className="text-slate-800 dark:text-white font-semibold mt-1">{user.hideEmail ? '•••••••••••••••••' : user.email}</p>
+                                        </div>
+                                        <div className="pt-3">
+                                            <p className="text-slate-450 dark:text-gray-400 text-xs font-semibold">Driving License No.</p>
+                                            <p className="text-slate-800 dark:text-white font-semibold mt-1">{user.hideLicense ? '•••••••••••••••••' : user.license}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {showSettings === 'address' && (
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 rounded-3xl p-6 shadow-sm animate-scale-up">
+                                <button onClick={() => setShowSettings('main')} className="text-blue-600 dark:text-blue-400 font-bold text-sm mb-4 block">← Back</button>
+                                <h3 className="text-slate-900 dark:text-white font-extrabold text-xl mb-3">Service Location Address</h3>
+                                <p className="text-slate-500 dark:text-gray-400 text-xs mb-3 font-medium">This address determines coordinates for your service centers.</p>
+                                <textarea
+                                    value={user.address}
+                                    onChange={(e) => setUser({...user, address: e.target.value})}
+                                    className="w-full bg-slate-50 dark:bg-gray-750 text-slate-800 dark:text-white p-4 rounded-xl border border-slate-200 dark:border-gray-700 h-28 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm leading-relaxed"
+                                />
+                            </div>
+                        )}
+
+                        {showSettings === 'appearance' && (
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 rounded-3xl p-6 shadow-sm animate-scale-up">
+                                <button onClick={() => setShowSettings('main')} className="text-blue-600 dark:text-blue-400 font-bold text-sm mb-4 block">← Back</button>
+                                <h3 className="text-slate-900 dark:text-white font-extrabold text-xl mb-4">Appearance</h3>
+                                <p className="text-xs text-slate-550 dark:text-gray-400 mb-4 font-semibold">Choose your default user interface color theme.</p>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <button 
+                                        onClick={() => setTheme('light')}
+                                        className={`flex flex-col items-center justify-center p-5 rounded-2xl border-2 transition ${
+                                            theme === 'light' 
+                                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/20 text-blue-600' 
+                                                : 'border-slate-200 dark:border-gray-700 hover:bg-slate-50 text-slate-800 dark:text-white'
+                                        }`}
+                                    >
+                                        <span className="font-bold text-sm">Light Mode</span>
+                                        <span className="text-[10px] text-slate-400 mt-1">Clean and Bright</span>
+                                    </button>
+                                    <button 
+                                        onClick={() => setTheme('dark')}
+                                        className={`flex flex-col items-center justify-center p-5 rounded-2xl border-2 transition ${
+                                            theme === 'dark' 
+                                                ? 'border-blue-500 bg-blue-950/20 text-blue-400' 
+                                                : 'border-slate-200 dark:border-gray-700 hover:bg-slate-50 text-slate-800 dark:text-white'
+                                        }`}
+                                    >
+                                        <span className="font-bold text-sm">Dark Mode</span>
+                                        <span className="text-[10px] text-slate-400 mt-1">Sleek and Battery Saving</span>
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {showSettings === 'safety' && (
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 rounded-3xl p-6 shadow-sm animate-scale-up">
+                                <button onClick={() => setShowSettings('main')} className="text-blue-600 dark:text-blue-400 font-bold text-sm mb-4 block">← Back</button>
+                                <h3 className="text-slate-900 dark:text-white font-extrabold text-xl mb-4">Privacy & Safety</h3>
+                                <div className="space-y-4">
+                                    <label className="flex items-center justify-between text-slate-800 dark:text-white cursor-pointer py-1">
+                                        <div className="text-left">
+                                            <span className="font-bold text-sm">Mask Email Address</span>
+                                            <p className="text-[11px] text-slate-400 mt-0.5">Hides your email in the settings profile panel</p>
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            checked={user.hideEmail}
+                                            onChange={(e) => setUser({...user, hideEmail: e.target.checked})}
+                                            className="w-5 h-5 rounded-lg text-blue-500 focus:ring-blue-500 border-slate-300"
+                                        />
+                                    </label>
+                                    <hr className="border-slate-100 dark:border-gray-750" />
+                                    <label className="flex items-center justify-between text-slate-800 dark:text-white cursor-pointer py-1">
+                                        <div className="text-left">
+                                            <span className="font-bold text-sm">Mask License plate / ID</span>
+                                            <p className="text-[11px] text-slate-400 mt-0.5">Protects your official identification data</p>
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            checked={user.hideLicense}
+                                            onChange={(e) => setUser({...user, hideLicense: e.target.checked})}
+                                            className="w-5 h-5 rounded-lg text-blue-500 focus:ring-blue-500 border-slate-300"
+                                        />
+                                    </label>
+                                </div>
+                            </div>
+                        )}
+
+                        {showSettings === 'invoice' && (
+                            <div className="bg-white dark:bg-gray-800 border border-slate-100 dark:border-gray-800 rounded-3xl p-6 shadow-sm animate-scale-up">
+                                <button onClick={() => setShowSettings('main')} className="text-blue-600 dark:text-blue-400 font-bold text-sm mb-4 block">← Back</button>
+                                <h3 className="text-slate-900 dark:text-white font-extrabold text-xl mb-4">Invoices & Bills</h3>
+                                {bookings.length === 0 ? (
+                                    <p className="text-slate-500 dark:text-gray-400 text-sm">No transaction history found.</p>
+                                ) : (
+                                    <div className="space-y-3">
+                                        {bookings.map((booking) => (
+                                            <div key={booking.id} className="bg-slate-50 dark:bg-gray-750 p-4 rounded-xl border border-slate-100 dark:border-gray-700/60 flex justify-between items-center">
+                                                <div>
+                                                    <span className="text-slate-800 dark:text-white font-bold text-sm block">{booking.service.name}</span>
+                                                    <span className="text-[11px] text-slate-450 dark:text-gray-400">{booking.date} • {booking.center.name}</span>
+                                                </div>
+                                                <div className="text-right">
+                                                    <span className="text-slate-900 dark:text-white font-black text-sm block">{booking.service.price}</span>
+                                                    <span className="text-[10px] text-green-600 dark:text-green-400 font-bold uppercase">{booking.status === 'Cancelled' ? 'Voided' : 'Paid'}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <button 
+                            onClick={handleLogout}
+                            className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 py-4 rounded-2xl font-bold transition flex items-center justify-center gap-2 active:scale-[0.98] border border-red-500/10"
+                        >
+                            <LogOutIcon size={20} />
+                            Log Out Profile
+                        </button>
+                    </div>
+                );
+            };
+
+            const BookingModal = () => {
+                if (!selectedService) return null;
+
+                return (
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+                        <div className="bg-white dark:bg-gray-800 rounded-3xl p-6 max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 dark:border-gray-750 animate-scale-up">
+                            <div className="flex justify-between items-center mb-5">
+                                <h2 className="text-slate-900 dark:text-white font-black text-xl">Service Booking</h2>
+                                <button onClick={() => {
+                                    setSelectedService(null);
+                                    setBookingStep(0);
+                                    setSelectedVehicle(null);
+                                    setSelectedCenter(null);
+                                }} className="text-slate-450 hover:text-slate-650 dark:text-gray-400 dark:hover:text-white bg-slate-100 dark:bg-gray-700/60 p-1.5 rounded-full transition">
+                                    <XIcon size={20} />
+                                </button>
+                            </div>
+
+                            {bookingStep === 0 && (
+                                <div>
+                                    <div className="bg-blue-50/70 dark:bg-gray-750 border border-blue-100/40 dark:border-gray-700 p-4 rounded-2xl mb-6">
+                                        <h3 className="text-blue-900 dark:text-blue-400 font-extrabold text-base leading-snug">{selectedService.name}</h3>
+                                        <div className="flex gap-4 mt-2.5 text-xs font-semibold text-slate-500 dark:text-gray-400">
+                                            <span>Est. Price: <strong className="text-slate-800 dark:text-white">{selectedService.price}</strong></span>
+                                            <span>Duration: <strong className="text-slate-800 dark:text-white">{selectedService.time}</strong></span>
+                                        </div>
+                                    </div>
+
+                                    <h3 className="text-slate-900 dark:text-white font-bold text-sm mb-3">Select Registered Vehicle</h3>
+                                    <div className="space-y-3 mb-6">
+                                        {vehicles.map((vehicle) => (
+                                            <button
+                                                key={vehicle.id}
+                                                onClick={() => setSelectedVehicle(vehicle)}
+                                                className={`w-full p-4 rounded-xl border-2 transition text-left flex items-center justify-between ${
+                                                    selectedVehicle?.id === vehicle.id
+                                                        ? 'border-blue-500 bg-blue-50/30 dark:bg-blue-950/20'
+                                                        : 'border-slate-200 dark:border-gray-700 bg-slate-50/50 dark:bg-gray-800'
+                                                }`}
+                                            >
+                                                <div>
+                                                    <p className="text-slate-800 dark:text-white font-bold text-sm">{vehicle.model}</p>
+                                                    <p className="text-slate-500 dark:text-gray-400 text-xs mt-0.5 font-medium">{vehicle.number} • {vehicle.type}</p>
+                                                </div>
+                                                {selectedVehicle?.id === vehicle.id && <CheckIcon className="text-blue-600 dark:text-blue-400 shrink-0" />}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <button
+                                        onClick={() => selectedVehicle && setBookingStep(1)}
+                                        disabled={!selectedVehicle}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-250 dark:disabled:bg-gray-700 disabled:text-slate-400 dark:disabled:text-gray-500 disabled:cursor-not-allowed text-white py-3.5 rounded-xl font-bold transition flex items-center justify-center gap-1"
+                                    >
+                                        Continue to Center
+                                    </button>
+                                </div>
+                            )}
+
+                            {bookingStep === 1 && (
+                                <div>
+                                    <button onClick={() => setBookingStep(0)} className="text-blue-600 dark:text-blue-400 font-bold text-xs mb-4 flex items-center gap-0.5">← Back</button>
+                                    
+                                    <h3 className="text-slate-900 dark:text-white font-bold text-sm mb-3">Select Nearby Service Center</h3>
+                                    
+                                    {/* Visual SVG Map element */}
+                                    <SimulatedMap 
+                                        centers={serviceCenters} 
+                                        selectedCenter={selectedCenter} 
+                                        onSelectCenter={setSelectedCenter} 
+                                    />
+
+                                    <div className="space-y-3 mb-6">
+                                        {serviceCenters.map((center) => (
+                                            <button
+                                                key={center.id}
+                                                onClick={() => setSelectedCenter(center)}
+                                                className={`w-full p-4 rounded-xl border-2 transition text-left flex items-center justify-between ${
+                                                    selectedCenter?.id === center.id
+                                                        ? 'border-blue-500 bg-blue-50/30 dark:bg-blue-950/20'
+                                                        : 'border-slate-200 dark:border-gray-700 bg-slate-50/50 dark:bg-gray-800'
+                                                }`}
+                                            >
+                                                <div>
+                                                    <p className="text-slate-800 dark:text-white font-bold text-sm">{center.name}</p>
+                                                    <div className="flex items-center gap-2 mt-1 text-slate-400 dark:text-gray-400">
+                                                        <MapPinIcon size={12} className="shrink-0" />
+                                                        <p className="text-xs font-medium">{center.location}</p>
+                                                    </div>
+                                                    <p className="text-yellow-500 dark:text-yellow-400 text-xs font-bold mt-1">★ {center.rating}</p>
+                                                </div>
+                                                {selectedCenter?.id === center.id && <CheckIcon className="text-blue-600 dark:text-blue-400 shrink-0" />}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <button
+                                        onClick={confirmBooking}
+                                        disabled={!selectedCenter}
+                                        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-slate-250 dark:disabled:bg-gray-700 disabled:text-slate-400 dark:disabled:text-gray-500 disabled:cursor-not-allowed text-white py-3.5 rounded-xl font-bold transition active:scale-95"
+                                    >
+                                        Confirm Booking
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            };
+
+            if (!isLoggedIn) {
+                return <LoginView onLogin={handleLogin} />;
+            }
+
+            return (
+                <div className="min-h-screen bg-slate-50 dark:bg-gray-950 text-slate-800 dark:text-white transition-colors duration-300">
+                    <div className="max-w-4xl mx-auto shadow-sm min-h-screen flex flex-col relative pb-20 bg-white dark:bg-gray-900 border-x border-slate-100 dark:border-gray-850">
+                        
+                        {/* Header */}
+                        <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md px-6 py-4 sticky top-0 z-40 border-b border-slate-100 dark:border-gray-850 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/10">
+                                    <WrenchIcon size={20} />
+                                </div>
+                                <h1 className="text-slate-900 dark:text-white text-xl font-black tracking-tight">QuickFix Auto</h1>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                {emergencyMode && (
+                                    <span className="bg-red-500 text-white text-[10px] px-2.5 py-1 rounded-full font-black uppercase tracking-wider animate-pulse">SOS ACTIVE</span>
+                                )}
+                                <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-black select-none">
+                                    {user.photo}
+                                </div>
+                            </div>
+                        </header>
+
+                        {/* Main Page Layout */}
+                        <main className="p-6 flex-1">
+                            {currentPage === 'home' && <HomePage />}
+                            {currentPage === 'activity' && <ActivityPage />}
+                            {currentPage === 'account' && <AccountPage />}
+                        </main>
+
+                        {/* Navigation bar */}
+                        <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 border-t border-slate-100 dark:border-gray-850 backdrop-blur-lg z-40">
+                            <div className="max-w-4xl mx-auto flex justify-around py-3.5">
+                                <button
+                                    onClick={() => {
+                                        setCurrentPage('home');
+                                        setEmergencyMode(false);
+                                    }}
+                                    className={`flex flex-col items-center gap-1 transition ${currentPage === 'home' ? 'text-blue-600 dark:text-blue-400 font-bold scale-105' : 'text-slate-400 hover:text-slate-650'}`}
+                                >
+                                    <HomeIcon size={22} />
+                                    <span className="text-[10px] font-bold">Home</span>
+                                </button>
+                                <button
+                                    onClick={() => setCurrentPage('activity')}
+                                    className={`flex flex-col items-center gap-1 transition ${currentPage === 'activity' ? 'text-blue-600 dark:text-blue-400 font-bold scale-105' : 'text-slate-400 hover:text-slate-650'}`}
+                                >
+                                    <ActivityIcon size={22} />
+                                    <span className="text-[10px] font-bold">Activity</span>
+                                </button>
+                                <button
+                                    onClick={() => setCurrentPage('account')}
+                                    className={`flex flex-col items-center gap-1 transition ${currentPage === 'account' ? 'text-blue-600 dark:text-blue-400 font-bold scale-105' : 'text-slate-400 hover:text-slate-650'}`}
+                                >
+                                    <UserIcon size={22} />
+                                    <span className="text-[10px] font-bold">Account</span>
+                                </button>
+                            </div>
+                        </nav>
+
+                        {selectedService && <BookingModal />}
+                    </div>
+                </div>
+            );
+        };
+
+        // Render React 18 Application using createRoot
+        const container = document.getElementById('root');
+        const root = ReactDOM.createRoot(container);
+        root.render(<VehicleServiceApp />);
+    </script>
+</body>
+</html>
+                        
